@@ -35,14 +35,14 @@ class HomePage extends StatelessWidget {
                       children: [
                         Icon(
                           Icons.person,
-                          color: Colors.white,
+                          color: Colors.black,
                           size: 50,
                         ),
                         SizedBox(width: 30),
                         Text(
                           "PERSONAGENS DA SÉRIE",
                           style: TextStyle(
-                            color: Colors.white,
+                            color: Colors.black,
                             fontSize: 20,
                           ),
                         ),
@@ -75,14 +75,14 @@ class HomePage extends StatelessWidget {
                       children: [
                         Icon(
                           Icons.video_camera_back,
-                          color: Colors.white,
+                          color: Colors.black,
                           size: 50,
                         ),
                         SizedBox(width: 30),
                         Text(
                           "EPISÓDIOS DA SÉRIE",
                           style: TextStyle(
-                            color: Colors.white,
+                            color: Colors.black,
                             fontSize: 20,
                           ),
                         ),
@@ -115,14 +115,14 @@ class HomePage extends StatelessWidget {
                       children: [
                         Icon(
                           Icons.home,
-                          color: Colors.white,
+                          color: Colors.black,
                           size: 50,
                         ),
                         SizedBox(width: 30),
                         Text(
                           "LOCAIS DA SÉRIE",
                           style: TextStyle(
-                            color: Colors.white,
+                            color: Colors.black,
                             fontSize: 20,
                           ),
                         ),
