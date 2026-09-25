@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:trabalho01_flutter/view/characters_page.dart';
+import 'package:trabalho01_flutter/view/episodes_page.dart';
+import 'package:trabalho01_flutter/view/locations_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -52,6 +55,7 @@ class HomePage extends StatelessWidget {
                 ),
               ),
             ),
+            SizedBox(height: 30),
             Container(
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -65,7 +69,7 @@ class HomePage extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => Placeholder(),
+                        builder: (context) => EpisodesPage(),
                       ),
                     );
                   },
@@ -92,6 +96,7 @@ class HomePage extends StatelessWidget {
                 ),
               ),
             ),
+            SizedBox(height: 30),
             Container(
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -105,7 +110,7 @@ class HomePage extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => Placeholder(),
+                        builder: (context) => LocationsPage(),
                       ),
                     );
                   },
