@@ -35,6 +35,8 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   http: ^1.6.0
+  flutter_launcher_icons: ^0.14.4
+  splash_master: ^1.0.0+1
 
 dev_dependencies:
   flutter_test:
@@ -88,3 +90,9 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+splash_master:
+    image: 'assets/imgs/icon.png'
+
+flutter_launcher_icons:
+    android: true
+    image_path: "assets/imgs/icon.png"
