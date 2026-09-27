@@ -28,7 +28,7 @@ class HomePage extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => Placeholder(),
+                        builder: (context) => CharactersPage(),
                       ),
                     );
                   },
@@ -43,7 +43,7 @@ class HomePage extends StatelessWidget {
                         ),
                         SizedBox(width: 30),
                         Text(
-                          "PERSONAGENS DA SÉRIE",
+                          "Personagens",
                           style: TextStyle(
                             color: Colors.black,
                             fontSize: 20,
@@ -84,7 +84,7 @@ class HomePage extends StatelessWidget {
                         ),
                         SizedBox(width: 30),
                         Text(
-                          "EPISÓDIOS DA SÉRIE",
+                          "Episódios",
                           style: TextStyle(
                             color: Colors.black,
                             fontSize: 20,
@@ -125,7 +125,7 @@ class HomePage extends StatelessWidget {
                         ),
                         SizedBox(width: 30),
                         Text(
-                          "LOCAIS DA SÉRIE",
+                          "Locais",
                           style: TextStyle(
                             color: Colors.black,
                             fontSize: 20,
