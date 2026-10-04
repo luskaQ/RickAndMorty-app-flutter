@@ -91,8 +91,13 @@ flutter:
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
 splash_master:
-    image: 'assets/imgs/icon.png'
+  color: "#FFFFFF"
+  image: "assets/imgs/logo.png"
+  android_gravity: "center" 
+  android_12_and_above:
+    color: "#FFFFFF"
+    image: "assets/imgs/logo.png"
 
 flutter_launcher_icons:
-    android: true
-    image_path: "assets/imgs/icon.png"
+  android: true
+  image_path: "assets/imgs/icon.png"
