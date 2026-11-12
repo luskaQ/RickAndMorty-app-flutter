@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:trabalho01_flutter/view/perfil_page.dart';
 
 import '../service/rickAndMortyService.dart';
 // import 'rick_and_morty_service.dart'; // Certifique-se de importar o seu service
@@ -173,6 +174,12 @@ class _EpisodesPageState extends State<EpisodesPage> {
         },
         icon: const Icon(Icons.arrow_back, color: Colors.black),
       ),
+      actions: const [
+        Padding(
+          padding: EdgeInsets.only(right: 12.0),
+          child: PerfilAvatarButton(),
+        ),
+      ],
     );
   }
 

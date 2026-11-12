@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "109174781435",
+    "project_id": "api-rick-morty-cf3eb",
+    "storage_bucket": "api-rick-morty-cf3eb.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:109174781435:android:1a9cc0a849e4c24a0e075e",
+        "android_client_info": {
+          "package_name": "com.example.trabalho01_flutter"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "109174781435-6b4afu850kne4s1eefs09kohi08t8h5a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDDbBrgNxFwUxB_kFbzwQ-48pa8BgV6tw0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "109174781435-6b4afu850kne4s1eefs09kohi08t8h5a.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "109174781435-tur187aq7b04rgpd2rae8rbpl7068gor.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.trabalho01Flutter"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:trabalho01_flutter/view/perfil_page.dart';
 
 import '../service/rickAndMortyService.dart';
 
@@ -172,6 +173,12 @@ class _CharactersPageState extends State<CharactersPage> {
         },
         icon: const Icon(Icons.arrow_back, color: Colors.black),
       ),
+      actions: const [
+        Padding(
+          padding: EdgeInsets.only(right: 12.0),
+          child: PerfilAvatarButton(),
+        ),
+      ],
     );
   }
 
