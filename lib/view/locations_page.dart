@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:trabalho01_flutter/view/perfil_page.dart';
 
 import '../service/rickAndMortyService.dart';
 
@@ -8,10 +9,6 @@ class LocationsPage extends StatefulWidget {
   @override
   State<LocationsPage> createState() => _LocationsPageState();
 }
-
-
-
-
 class _LocationsPageState extends State<LocationsPage> {
   final Rickandmortyservice _rickAndMortyService = Rickandmortyservice();
 
@@ -156,6 +153,7 @@ class _LocationsPageState extends State<LocationsPage> {
       backgroundColor: Colors.yellow,
       title: Row(
         mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Image.asset("assets/imgs/logo.png", fit: BoxFit.contain, height: 40),
         ],
@@ -165,8 +163,14 @@ class _LocationsPageState extends State<LocationsPage> {
         onPressed: () {
           Navigator.pop(context);
         },
-        icon: Icon(Icons.arrow_back, color: Colors.black),
+        icon: const Icon(Icons.arrow_back, color: Colors.black),
       ),
+      actions: const [
+        Padding(
+          padding: EdgeInsets.only(right: 12.0),
+          child: PerfilAvatarButton(),
+        ),
+      ],
     );
   }
 

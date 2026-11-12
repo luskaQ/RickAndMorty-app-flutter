@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:trabalho01_flutter/view/characters_page.dart';
 import 'package:trabalho01_flutter/view/episodes_page.dart';
 import 'package:trabalho01_flutter/view/locations_page.dart';
+import 'package:trabalho01_flutter/view/perfil_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -147,9 +148,10 @@ class HomePage extends StatelessWidget {
     return AppBar(
       backgroundColor: Colors.yellow,
       title: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Image.asset("assets/imgs/logo.png", fit: BoxFit.contain, height: 40),
+          const PerfilAvatarButton(),
         ],
       ),
     );
