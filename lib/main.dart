@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:trabalho01_flutter/theme/app_theme.dart';
+import 'package:trabalho01_flutter/view/auth_page.dart';
 import 'package:trabalho01_flutter/view/home_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +15,8 @@ Future<void> main() async {
   await Future.delayed(const Duration(seconds: 2));
   runApp(
     MaterialApp(
-      home: HomePage(),
+      theme: AppTheme.light,
+      home: AuthPage(),
     ),
   );
 }
