@@ -20,6 +20,8 @@ class PerfilService {
   static const String _tableName = 'perfis';
   static const String _collectionName = 'perfis';
 
+  static const Duration _firestoreTimeout = Duration(seconds: 3);
+
   String? get uidUsuarioAtual => _auth.currentUser?.uid;
 
   Future<Database> get database async {
@@ -60,7 +62,6 @@ class PerfilService {
     );
   }
 
-  /// Solicita permissão e obtém a geolocalização atual do dispositivo.
   Future<Position> obterLocalizacaoAtual() async {
     final servicoAtivo = await Geolocator.isLocationServiceEnabled();
     if (!servicoAtivo) {
@@ -84,11 +85,11 @@ class PerfilService {
     return await Geolocator.getCurrentPosition(
       locationSettings: const LocationSettings(
         accuracy: LocationAccuracy.high,
+        timeLimit: Duration(seconds: 8),
       ),
     );
   }
 
-  /// Salva ou atualiza o perfil do usuário logado no modo Offline-First.
   Future<Perfil> salvarPerfilUsuarioLogado({
     required String nome,
     required String descricao,
@@ -134,11 +135,13 @@ class PerfilService {
       perfilAtualNotifier.value = perfilParaSalvar;
     }
 
+
     try {
       await _firestore
           .collection(_collectionName)
           .doc(perfilParaSalvar.uid)
-          .set(perfilParaSalvar.toFirestore(), SetOptions(merge: true));
+          .set(perfilParaSalvar.toFirestore(), SetOptions(merge: true))
+          .timeout(_firestoreTimeout);
 
       final perfilSincronizado = perfilParaSalvar.copyWith(sincronizado: true);
       await db.update(
@@ -152,14 +155,25 @@ class PerfilService {
       }
       return perfilSincronizado;
     } catch (_) {
-      // Sem internet ou falha no Firestore: mantém salvo localmente como não sincronizado (sincronizado = 0)
       return perfilParaSalvar;
     }
   }
 
-  /// Busca o perfil do usuário autenticado atualmente.
-  /// - Lê primeiro do SQLite local (resposta rápida e funciona offline).
-  /// - Tenta sincronizar pendências e buscar atualizações mais recentes no Firestore.
+  Future<Perfil?> obterPerfilLocalUsuarioLogado() async {
+    final uid = uidUsuarioAtual;
+    if (uid == null) return null;
+    final db = await database;
+    final localMaps = await db.query(
+      _tableName,
+      where: 'uid = ?',
+      whereArgs: [uid],
+      limit: 1,
+    );
+    if (localMaps.isEmpty) return null;
+    final perfil = Perfil.fromSqliteMap(localMaps.first);
+    perfilAtualNotifier.value = perfil;
+    return perfil;
+  }
   Future<Perfil?> obterPerfilUsuarioLogado() async {
     final uid = uidUsuarioAtual;
     if (uid == null) {
@@ -171,11 +185,9 @@ class PerfilService {
     return perfil;
   }
 
-  /// Obtém o perfil pelo [uid] seguindo a estratégia Offline-First.
   Future<Perfil?> obterPerfilPorUid(String uid) async {
     final db = await database;
 
-    // 1. Busca primeiro no banco local SQLite
     final List<Map<String, dynamic>> localMaps = await db.query(
       _tableName,
       where: 'uid = ?',
@@ -187,7 +199,10 @@ class PerfilService {
         ? Perfil.fromSqliteMap(localMaps.first)
         : null;
 
-    // 2. Se existe alteração local pendente de envio, tenta sincronizar primeiro
+    if (uid == uidUsuarioAtual && perfilLocal != null) {
+      perfilAtualNotifier.value = perfilLocal;
+    }
+
     if (perfilLocal != null && !perfilLocal.sincronizado) {
       await sincronizarPerfisPendentes();
       final atualizados = await db.query(
@@ -202,9 +217,12 @@ class PerfilService {
       return perfilLocal;
     }
 
-    // 3. Tenta buscar do Firestore para manter o cache local atualizado
     try {
-      final doc = await _firestore.collection(_collectionName).doc(uid).get();
+      final doc = await _firestore
+          .collection(_collectionName)
+          .doc(uid)
+          .get(const GetOptions(source: Source.server))
+          .timeout(_firestoreTimeout);
 
       if (doc.exists && doc.data() != null) {
         final perfilRemoto = Perfil.fromFirestore(doc);
@@ -220,25 +238,20 @@ class PerfilService {
         }
       }
     } catch (_) {
-      // Offline: retorna o perfil salvo no SQLite local
     }
 
     return perfilLocal;
   }
 
-  /// Lista todos os perfis armazenados localmente no SQLite.
   Future<List<Perfil>> listarPerfisLocais() async {
     final db = await database;
     final maps = await db.query(_tableName, orderBy: 'nome ASC');
     return maps.map((map) => Perfil.fromSqliteMap(map)).toList();
   }
 
-  /// Sincroniza todos os perfis locais com `sincronizado = 0` para o Cloud Firestore
-  /// e atualiza o banco local com os dados mais recentes do usuário logado.
   Future<void> sincronizarPerfisPendentes() async {
     final db = await database;
 
-    // 1. Busca todos os perfis que ainda não foram sincronizados com o Firestore
     final pendentes = await db.query(
       _tableName,
       where: 'sincronizado = ?',
@@ -251,63 +264,47 @@ class PerfilService {
         await _firestore
             .collection(_collectionName)
             .doc(perfil.uid)
-            .set(perfil.toFirestore(), SetOptions(merge: true));
+            .set(perfil.toFirestore(), SetOptions(merge: true))
+            .timeout(_firestoreTimeout);
 
+        final sincronizado = perfil.copyWith(sincronizado: true);
         await db.update(
           _tableName,
-          perfil.copyWith(sincronizado: true).toSqliteMap(),
+          sincronizado.toSqliteMap(),
           where: 'uid = ?',
           whereArgs: [perfil.uid],
         );
-      } catch (_) {
-        // Se continuar sem conexão, mantém na fila local para a próxima tentativa
-      }
-    }
-
-    // 2. Se houver usuário logado, puxa a versão remota caso não haja pendência local
-    final uid = uidUsuarioAtual;
-    if (uid != null) {
-      try {
-        final doc = await _firestore.collection(_collectionName).doc(uid).get();
-        if (doc.exists && doc.data() != null) {
-          final perfilRemoto = Perfil.fromFirestore(doc);
-          final localQuery = await db.query(
-            _tableName,
-            where: 'uid = ?',
-            whereArgs: [uid],
-            limit: 1,
-          );
-
-          if (localQuery.isEmpty) {
-            await db.insert(
-              _tableName,
-              perfilRemoto.toSqliteMap(),
-              conflictAlgorithm: ConflictAlgorithm.replace,
-            );
-          } else {
-            final perfilLocal = Perfil.fromSqliteMap(localQuery.first);
-            if (perfilLocal.sincronizado &&
-                perfilRemoto.updatedAt >= perfilLocal.updatedAt) {
-              await db.insert(
-                _tableName,
-                perfilRemoto.toSqliteMap(),
-                conflictAlgorithm: ConflictAlgorithm.replace,
-              );
-            }
-          }
+        if (perfil.uid == uidUsuarioAtual) {
+          perfilAtualNotifier.value = sincronizado;
         }
       } catch (_) {
-        // Ignora erro de rede ao tentar baixar atualização remota
+        return;
       }
     }
+  }
+
+  Future<void> deletarPerfilUsuarioLogado() async {
+    final uid = uidUsuarioAtual;
+    if (uid == null) {
+      throw Exception('Nenhum usuário autenticado no Firebase Auth.');
+    }
+    await deletarPerfil(uid);
   }
 
   Future<void> deletarPerfil(String uid) async {
     final db = await database;
     await db.delete(_tableName, where: 'uid = ?', whereArgs: [uid]);
 
+    if (uid == uidUsuarioAtual) {
+      perfilAtualNotifier.value = null;
+    }
+
     try {
-      await _firestore.collection(_collectionName).doc(uid).delete();
+      await _firestore
+          .collection(_collectionName)
+          .doc(uid)
+          .delete()
+          .timeout(_firestoreTimeout);
     } catch (_) {}
   }
 }
