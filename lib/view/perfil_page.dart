@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -89,6 +90,7 @@ class _PerfilPageState extends State<PerfilPage> {
   bool _carregando = true;
   bool _buscandoLocalizacao = false;
   bool _salvando = false;
+  bool _deletando = false;
 
   @override
   void initState() {
@@ -96,22 +98,37 @@ class _PerfilPageState extends State<PerfilPage> {
     _carregarDadosPerfil();
   }
 
+  void _preencherCampos(Perfil perfil) {
+    _nomeController.text = perfil.nome;
+    _descricaoController.text = perfil.descricao;
+    _caminhoFoto = perfil.foto;
+    _latitude = perfil.latitude;
+    _longitude = perfil.longitude;
+    _dataNascimento = perfil.dataNascimento;
+    if (_dataNascimento != null) {
+      _focusedDay = _dataNascimento!;
+    }
+  }
+
   Future<void> _carregarDadosPerfil() async {
     setState(() => _carregando = true);
-    final perfil = await _perfilService.obterPerfilUsuarioLogado();
-    if (perfil != null) {
-      _nomeController.text = perfil.nome;
-      _descricaoController.text = perfil.descricao;
-      _caminhoFoto = perfil.foto;
-      _latitude = perfil.latitude;
-      _longitude = perfil.longitude;
-      _dataNascimento = perfil.dataNascimento;
-      if (_dataNascimento != null) {
-        _focusedDay = _dataNascimento!;
-      }
+
+    final perfilLocal = await _perfilService.obterPerfilLocalUsuarioLogado();
+    if (perfilLocal != null && mounted) {
+      setState(() {
+        _preencherCampos(perfilLocal);
+        _carregando = false;
+      });
     }
+
+    final perfilSincronizado = await _perfilService.obterPerfilUsuarioLogado();
     if (mounted) {
-      setState(() => _carregando = false);
+      setState(() {
+        if (perfilSincronizado != null) {
+          _preencherCampos(perfilSincronizado);
+        }
+        _carregando = false;
+      });
     }
   }
 
@@ -129,7 +146,8 @@ class _PerfilPageState extends State<PerfilPage> {
     try {
       final posicao = await _perfilService.obterLocalizacaoAtual();
       if (mounted) {
-        setState(() {
+        setState
+          (() {
           _latitude = posicao.latitude;
           _longitude = posicao.longitude;
         });
@@ -153,18 +171,7 @@ class _PerfilPageState extends State<PerfilPage> {
   Future<void> _salvarPerfil() async {
     setState(() => _salvando = true);
     try {
-      // Caso o usuário ainda não tenha capturado a localização, tenta obter antes de salvar
-      if (_latitude == null || _longitude == null) {
-        try {
-          final posicao = await _perfilService.obterLocalizacaoAtual();
-          _latitude = posicao.latitude;
-          _longitude = posicao.longitude;
-        } catch (_) {
-          // Segue salvando mesmo se o GPS estiver indisponível no momento
-        }
-      }
-
-      await _perfilService.salvarPerfilUsuarioLogado(
+      final perfilSalvo = await _perfilService.salvarPerfilUsuarioLogado(
         nome: _nomeController.text.trim(),
         descricao: _descricaoController.text.trim(),
         foto: _caminhoFoto,
@@ -174,8 +181,11 @@ class _PerfilPageState extends State<PerfilPage> {
       );
       if (mounted) {
         setState(() {});
+        final msg = perfilSalvo.sincronizado
+            ? 'Perfil salvo e sincronizado com sucesso!'
+            : 'Perfil salvo localmente (modo offline). Será sincronizado quando houver conexão.';
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Perfil salvo com sucesso!')),
+          SnackBar(content: Text(msg)),
         );
       }
     } catch (e) {
@@ -189,6 +199,67 @@ class _PerfilPageState extends State<PerfilPage> {
         setState(() => _salvando = false);
       }
     }
+  }
+
+  Future<void> _confirmarEDeletarPerfil() async {
+    final confirmar = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Limpar Perfil'),
+        content: const Text(
+          'Tem certeza que deseja deletar e limpar todos os dados do seu perfil?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Deletar'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmar != true) return;
+
+    setState(() => _deletando = true);
+    try {
+      await _perfilService.deletarPerfilUsuarioLogado();
+      if (mounted) {
+        setState(() {
+          _nomeController.clear();
+          _descricaoController.clear();
+          _caminhoFoto = null;
+          _latitude = null;
+          _longitude = null;
+          _dataNascimento = null;
+          _focusedDay = DateTime(2000, 1, 1);
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Perfil deletado com sucesso!')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro ao deletar perfil: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _deletando = false);
+      }
+    }
+  }
+
+  Future<void> _logout() async {
+    _perfilService.perfilAtualNotifier.value = null;
+    await FirebaseAuth.instance.signOut();
+    if (!mounted) return;
+    Navigator.of(context).popUntil((route) => route.isFirst);
   }
 
   String _formatarData(DateTime? data) {
@@ -236,6 +307,13 @@ class _PerfilPageState extends State<PerfilPage> {
           onPressed: () => Navigator.pop(context),
           icon: const Icon(Icons.arrow_back, color: Colors.black),
         ),
+        actions: [
+          IconButton(
+            onPressed: _logout,
+            tooltip: 'Sair da conta',
+            icon: const Icon(Icons.logout, color: Colors.black),
+          ),
+        ],
       ),
       body: _carregando
           ? const Center(child: CircularProgressIndicator(color: Colors.white))
@@ -300,7 +378,6 @@ class _PerfilPageState extends State<PerfilPage> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Card de Data de Nascimento com TableCalendar
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
@@ -370,7 +447,6 @@ class _PerfilPageState extends State<PerfilPage> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Card de Geolocalização
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
@@ -420,7 +496,7 @@ class _PerfilPageState extends State<PerfilPage> {
                     width: double.infinity,
                     height: 48,
                     child: ElevatedButton(
-                      onPressed: _salvando ? null : _salvarPerfil,
+                      onPressed: (_salvando || _deletando) ? null : _salvarPerfil,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.yellow,
                         foregroundColor: Colors.black,
@@ -441,6 +517,40 @@ class _PerfilPageState extends State<PerfilPage> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton.icon(
+                      onPressed: (_salvando || _deletando)
+                          ? null
+                          : _confirmarEDeletarPerfil,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.redAccent,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      icon: _deletando
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Icon(Icons.delete_outline),
+                      label: const Text(
+                        "Deletar / Limpar Perfil",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
                 ],
