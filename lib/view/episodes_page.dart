@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:trabalho01_flutter/view/perfil_page.dart';
+import 'package:trabalho01_flutter/components/my_app_bar_com_opcao_voltar.dart';
+import 'package:trabalho01_flutter/components/search_field.dart';
 
 import '../service/rickAndMortyService.dart';
-// import 'rick_and_morty_service.dart'; // Certifique-se de importar o seu service
 
 class EpisodesPage extends StatefulWidget {
   const EpisodesPage({super.key});
@@ -38,30 +38,11 @@ class _EpisodesPageState extends State<EpisodesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: myAppBarComOpcaoVoltar(),
+      appBar: MyAppBarComOpcaoVoltar(),
       backgroundColor: Colors.cyan,
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: "Buscar episódio por nome...",
-                filled: true,
-                fillColor: Colors.white,
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.search, color: Colors.cyan),
-                  onPressed: () => _buscarEpisodio(_searchController.text),
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-              onSubmitted: _buscarEpisodio,
-            ),
-          ),
+          SearchField(controller: _searchController, hintText: "Buscar episódio por nome...", action: _buscarEpisodio),
           Expanded(
             child: FutureBuilder<Map>(
               future: _episodiosFuture,
@@ -154,32 +135,6 @@ class _EpisodesPageState extends State<EpisodesPage> {
           ),
         ],
       ),
-    );
-  }
-
-  PreferredSizeWidget myAppBarComOpcaoVoltar() {
-    return AppBar(
-      backgroundColor: Colors.yellow,
-      title: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Image.asset("assets/imgs/logo.png", fit: BoxFit.contain, height: 40),
-        ],
-      ),
-      centerTitle: true,
-      leading: IconButton(
-        onPressed: () {
-          Navigator.pop(context);
-        },
-        icon: const Icon(Icons.arrow_back, color: Colors.black),
-      ),
-      actions: const [
-        Padding(
-          padding: EdgeInsets.only(right: 12.0),
-          child: PerfilAvatarButton(),
-        ),
-      ],
     );
   }
 

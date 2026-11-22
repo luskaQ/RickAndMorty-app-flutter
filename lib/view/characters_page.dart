@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:trabalho01_flutter/view/perfil_page.dart';
+import 'package:trabalho01_flutter/components/my_app_bar_com_opcao_voltar.dart';
+import 'package:trabalho01_flutter/components/search_field.dart';
 
 import '../service/rickAndMortyService.dart';
 
@@ -37,30 +38,11 @@ class _CharactersPageState extends State<CharactersPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: myAppBarComOpcaoVoltar(),
+      appBar: MyAppBarComOpcaoVoltar(),
       backgroundColor: Colors.cyan,
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: "Buscar personagem por nome...",
-                filled: true,
-                fillColor: Colors.white,
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.search, color: Colors.cyan),
-                  onPressed: () => _buscarPersonagem(_searchController.text),
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-              onSubmitted: _buscarPersonagem,
-            ),
-          ),
+          SearchField(controller: _searchController, hintText: "Buscar personagem por nome...", action: _buscarPersonagem),
           Expanded(
             child: FutureBuilder<Map>(
               future: _charactersFuture,
@@ -153,32 +135,6 @@ class _CharactersPageState extends State<CharactersPage> {
           ),
         ],
       ),
-    );
-  }
-
-  PreferredSizeWidget myAppBarComOpcaoVoltar() {
-    return AppBar(
-      backgroundColor: Colors.yellow,
-      title: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Image.asset("assets/imgs/logo.png", fit: BoxFit.contain, height: 40),
-        ],
-      ),
-      centerTitle: true,
-      leading: IconButton(
-        onPressed: () {
-          Navigator.pop(context);
-        },
-        icon: const Icon(Icons.arrow_back, color: Colors.black),
-      ),
-      actions: const [
-        Padding(
-          padding: EdgeInsets.only(right: 12.0),
-          child: PerfilAvatarButton(),
-        ),
-      ],
     );
   }
 

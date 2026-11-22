@@ -20,7 +20,7 @@ class AccountButton extends StatelessWidget {
         child: Ink(
           padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
-            color: Colors.cyan,
+            color: Colors.yellow,
             borderRadius: BorderRadius.circular(14),
           ),
           child: Row(

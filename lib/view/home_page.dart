@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:trabalho01_flutter/components/home_page_button.dart';
+import 'package:trabalho01_flutter/components/my_app_bar.dart';
 import 'package:trabalho01_flutter/view/characters_page.dart';
 import 'package:trabalho01_flutter/view/episodes_page.dart';
 import 'package:trabalho01_flutter/view/locations_page.dart';
-import 'package:trabalho01_flutter/view/perfil_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -10,149 +11,18 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: myAppBar(),
-      backgroundColor: Colors.cyan,
+      appBar: MyAppBar(),
       body: Padding(
         padding: EdgeInsets.all(10.0),
         child: Column(
           children: [
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(10),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => CharactersPage(),
-                      ),
-                    );
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(15),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.person,
-                          color: Colors.black,
-                          size: 50,
-                        ),
-                        SizedBox(width: 30),
-                        Text(
-                          "Personagens",
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 20,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
+            HomePageButton(destinationPage: CharactersPage(), text: "Personagens", icon: Icons.person),
             SizedBox(height: 30),
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(10),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => EpisodesPage(),
-                      ),
-                    );
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(15),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.video_camera_back,
-                          color: Colors.black,
-                          size: 50,
-                        ),
-                        SizedBox(width: 30),
-                        Text(
-                          "Episódios",
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 20,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
+            HomePageButton(destinationPage: EpisodesPage(), text: "Episódios", icon: Icons.video_camera_back,),
             SizedBox(height: 30),
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(10),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => LocationsPage(),
-                      ),
-                    );
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(15),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.home,
-                          color: Colors.black,
-                          size: 50,
-                        ),
-                        SizedBox(width: 30),
-                        Text(
-                          "Locais",
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 20,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            )
+            HomePageButton(destinationPage: LocationsPage(), text: "Locais", icon: Icons.location_on,),
           ],
         ),
-      ),
-    );
-  }
-
-  PreferredSizeWidget myAppBar() {
-    return AppBar(
-      backgroundColor: Colors.yellow,
-      title: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Image.asset("assets/imgs/logo.png", fit: BoxFit.contain, height: 40),
-          const PerfilAvatarButton(),
-        ],
       ),
     );
   }

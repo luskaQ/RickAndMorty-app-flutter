@@ -102,12 +102,15 @@ flutter:
   # see https://flutter.dev/to/font-from-package
 splash_master:
   color: "#FFFFFF"
-  image: "assets/imgs/logo.png"
+  image: "assets/imgs/splash.png"
   android_gravity: "center" 
   android_12_and_above:
     color: "#FFFFFF"
-    image: "assets/imgs/logo.png"
+    image: "assets/imgs/splash.png"
 
 flutter_launcher_icons:
   android: true
+  ios: true
   image_path: "assets/imgs/icon.png"
+  adaptive_icon_background: "#ffffff"
+  adaptive_icon_foreground: "assets/imgs/icon.png"

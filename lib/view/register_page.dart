@@ -113,6 +113,11 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
                 const SizedBox(height: 15,),
                 AccountButton(onTap: register, text: "Registrar", icon: Icons.person_add,),
+                const SizedBox(height: 10,),
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Já tem uma conta? Faça o login!'),
+                ),
               ],
             ),
           ),

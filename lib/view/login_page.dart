@@ -129,7 +129,7 @@ class _LoginPageState extends State<LoginPage> {
                     context,
                     MaterialPageRoute(builder: (_) => const RegisterPage()),
                   ),
-                  child: const Text('Registre-se agora!'),
+                  child: const Text('Ainda não tem uma conta? Registre-se agora!'),
                 ),
               ],
             ),
