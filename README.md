@@ -26,10 +26,10 @@ Flutter e Firebase
 
 # Instruções para executar
 Após clonar este repositório, tendo a versão 3.48.0-0.5.pre do FLutter ou equivalente instalada, no diretório do projeto, rode:\
-    ```bash
+    ```
     flutter pub get
     ```\
-    ```bash
+    ```
     flutter run
     ```\
     e escolha o dispositivo que você quer rodar.
